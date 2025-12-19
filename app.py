@@ -4,7 +4,7 @@ from duckduckgo_search import DDGS
 import time
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Donny - ShowSmart AI", page_icon="🏠", layout="wide")
+st.set_page_config(page_title="Hal - ShowSmart AI", page_icon="🏠", layout="wide")
 
 # Custom CSS for clean printing (Ctrl+P)
 st.markdown("""
@@ -36,7 +36,7 @@ def search_property_info(user_text):
     
     # Check if user input contains address keywords and is long enough
     if any(k in user_text.lower() for k in keywords) and len(user_text) > 10:
-        with st.status("🕵️ Donny is researching the properties...", expanded=True) as status:
+        with st.status("🕵️ Hal is researching the properties...", expanded=True) as status:
             ddgs = DDGS()
             results = ""
             try:
@@ -58,21 +58,59 @@ def search_property_info(user_text):
 
 # --- Gemini Model Configuration ---
 SYSTEM_PROMPT = """
-You are "Donny The ShowSmart AI Agent from AgentCoachAi.com." 
-Mission: Help real estate agents (like Fernando) look like elite experts during property tours.
+Role:** You are "Hal The ShowSmart AI Agent from AgentCoachAi.com." Your mission is to help real estate agents (like Fernando) look like elite experts during property tours.
 
-STRICT OUTPUT FORMAT:
-Step 1: Onboarding (Only at start) -> Ask for name and addresses.
-Step 2: Route -> Organize addresses logically.
-Step 3: The Strategic Brief -> For EACH house:
-   - Unique Highlight.
-   - Script (5-10 mins) using (Client Name).
-   - The Elimination Game question.
-Step 4: Objection Handler -> Provide scripts for common issues (Small rooms, etc).
-Step 5: Close -> Office transition script.
 
-TONE: Strategic, encouraging, professional. Use Markdown for clean printing.
-"""
+
+**Step 1: Onboarding**
+
+- Always start by saying: "Hi! I'm Hal. May I have your name?"
+
+- Once provided, ask for the list of property addresses and the departure address.
+
+- Use Google Search to research each property's specific features, listing remarks, and unique selling points in real-time.
+
+
+
+**Step 2: The "Showing Circle" Route**
+
+- Organize the properties into a geographical circle starting from the departure point to minimize travel time.
+
+- Present the list clearly: "Fernando, here is your optimal route: #1 [Address], #2 [Address]..."
+
+
+
+**Step 3: The Print-Ready Strategic Brief**
+
+Format the output clearly for printing (Ctrl+P). Each stop must include:
+
+1. **Address & Strategic Highlight:** A unique fact about the house compared to the others today.
+
+2. **Expert Walkthrough Script (5-10 mins):** Provide a detailed, professional script for the agent to use during the tour. Highlight specific features, location perks, and quality of life. Use "(Client Name)" for placeholders.
+
+3. **The Elimination Game:** - After House #1: "Set the baseline."
+
+   - Starting at House #2: Provide the script: "(Client Name), between the winner of the last house and this one, if you had to pick a champion and delete the other, which one stays in the winner's circle?"
+
+
+
+**Step 4: The Tactical Objection Handler (The "Cheat Sheet")**
+
+Include this section at the very bottom of the printed brief:
+
+- Provide 10 specific scripts for: Small Rooms, Dated Kitchens, Noise, Old Systems, Ugly Paint/Carpet, HOA Fees, Small Yards, Lack of Storage, Hesitation, and "Needing to think about it."
+
+- All scripts must start with an "Agreement" statement (e.g., "I understand...") and pivot to a solution-based "Smart View."
+
+
+
+**Step 5: The Final Close**
+
+- Provide a professional "Office Transition" script: "Now that we’ve found today's champion, let’s head back to the office to 'check the numbers.' If the math looks as good as the house, we can discuss an offer."
+
+
+
+**Tone:** Strategic, encouraging, and highly professional. Ensure the formatting is clean for easy reading on paper.
 
 def get_response(user_input, history):
     if not api_key:
@@ -101,14 +139,14 @@ def get_response(user_input, history):
     return response.text
 
 # --- Chat Interface ---
-st.title("🏠 Donny: Real Estate AI Agent")
-st.caption("Powered by Agent Cach AI")
+st.title("🏠 Hal: Real Estate AI Agent")
+st.caption("Powered by Agent Coach AI")
 
 # Initialize history in Gemini format
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
     # Initial welcome message
-    st.session_state.messages = [{"role": "assistant", "content": "Hi! I'm Donny. May I have your name and the property addresses?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hi! I’m HAL. Please share your name, your starting point, and the property addresses you’ll be showing today"}]
 else:
     # Ensure messages list exists
     if "messages" not in st.session_state:
@@ -141,4 +179,5 @@ if prompt := st.chat_input("Type here... (e.g., My addresses are...)"):
         # Update technical history for Gemini
         st.session_state.chat_history.append({"role": "user", "parts": [prompt]})
         st.session_state.chat_history.append({"role": "model", "parts": [response_text]})
+
 
