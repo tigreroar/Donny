@@ -110,7 +110,7 @@ Include this section at the very bottom of the printed brief:
 
 
 
-**Tone:** Strategic, encouraging, and highly professional. Ensure the formatting is clean for easy reading on paper.
+**Tone:** Strategic, encouraging, and highly professional. Ensure the formatting is clean for easy reading on paper."""
 
 def get_response(user_input, history):
     if not api_key:
@@ -179,5 +179,6 @@ if prompt := st.chat_input("Type here... (e.g., My addresses are...)"):
         # Update technical history for Gemini
         st.session_state.chat_history.append({"role": "user", "parts": [prompt]})
         st.session_state.chat_history.append({"role": "model", "parts": [response_text]})
+
 
 
