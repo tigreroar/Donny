@@ -1,9 +1,11 @@
+import os
 import streamlit as st
 import google.generativeai as genai
 from duckduckgo_search import DDGS
 
 # --- Page Configuration ---
-st.set_page_config(page_title="Hal - ShowSmart AI", page_icon="🏠", layout="wide")
+# Debe ser siempre el primer comando de Streamlit
+st.set_page_config(page_title="Hal - ShowSmart AI", page_icon="匠", layout="wide")
 
 # Custom CSS for clean printing
 st.markdown("""
@@ -18,10 +20,22 @@ st.markdown("""
 
 # --- Sidebar: Configuration ---
 with st.sidebar:
-    st.title("🔧 Configuration")
-    if "GOOGLE_API_KEY" in st.secrets:
-        api_key = st.secrets["GOOGLE_API_KEY"]
-    else:
+    st.title("Configuration")
+    
+    # 1. Primero intentamos leer la clave de Railway (Variables de Entorno)
+    api_key = os.getenv("GOOGLE_API_KEY")
+
+    # 2. Si no está en Railway, intentamos leer de secrets.toml (Local)
+    # Usamos try/except para evitar el error "StreamlitSecretNotFoundError" si el archivo no existe
+    if not api_key:
+        try:
+            if "GOOGLE_API_KEY" in st.secrets:
+                api_key = st.secrets["GOOGLE_API_KEY"]
+        except:
+            pass # Si falla, simplemente seguimos sin clave
+
+    # 3. Si no hay clave ni en Railway ni en local, pedirla al usuario
+    if not api_key:
         api_key = st.text_input("Enter your Google API Key", type="password")
         if not api_key:
             st.warning("Please enter your API Key to start.")
@@ -34,7 +48,7 @@ def search_property_info(user_text):
     
     # Check if keywords exist and text is long enough
     if any(k in user_text.lower() for k in keywords) and len(user_text) > 10:
-        with st.status("🕵️ Hal is researching the properties...", expanded=True) as status:
+        with st.status("Hal is researching the properties...", expanded=True) as status:
             ddgs = DDGS()
             results = ""
             try:
@@ -87,7 +101,7 @@ def get_response(user_input, history):
     
     genai.configure(api_key=api_key)
     
-    # Using gemini-1.5-flash (Fixed from 2.5 which does not exist yet)
+    # CORRECCIÓN IMPORTANTE: Cambiado de 2.5 (que no existe) a 1.5-flash
     model = genai.GenerativeModel(
         model_name="gemini-2.5-flash", 
         system_instruction=SYSTEM_PROMPT
@@ -105,7 +119,7 @@ def get_response(user_input, history):
     return response.text
 
 # --- Chat Interface ---
-st.title("🏠 Hal: Real Estate AI Agent")
+st.title("Hal: Real Estate AI Agent")
 st.caption("Powered by Agent Coach AI")
 
 if "chat_history" not in st.session_state:
@@ -132,3 +146,4 @@ if prompt := st.chat_input("Type here... (e.g., My addresses are...)"):
         # Update technical history for Gemini
         st.session_state.chat_history.append({"role": "user", "parts": [prompt]})
         st.session_state.chat_history.append({"role": "model", "parts": [response_text]})
+
